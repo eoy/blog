@@ -1,0 +1,47 @@
+working_directory "<%= current_path %>"
+pid               "<%= unicorn_pid %>"
+stderr_path       "<%= unicorn_log_stderr %>"
+stdout_path       "<%= unicorn_log_stdout %>"
+
+worker_processes  <%= unicorn_workers %> # x workers and 1 master
+preload_app       true                   # Load rails and application into the master before forking workers for fast worker spawn times
+timeout           30                     # Restart any workers that haven't responded in 30 seconds
+
+listen            "/tmp/unicorn.<%= application %>.sock", :backlog => <%= unicorn_backlog %>
+
+
+before_fork do |server, worker|
+  # the following is highly recomended for Rails + "preload_app true" as there's no need for the master process to hold a connection
+  ActiveRecord::Base.connection.disconnect! if defined?(ActiveRecord::Base)
+
+  ##
+  # When sent a USR2, Unicorn will suffix its pidfile with .oldbin and
+  # immediately start loading up a new version of itself (loaded with a new
+  # version of our app). When this new Unicorn is completely loaded
+  # it will begin spawning workers. The first worker spawned will check to
+  # see if an .oldbin pidfile exists. If so, this means we've just booted up
+  # a new Unicorn and need to tell the old one that it can now die. To do so
+  # we send it a QUIT.
+  #
+  # Using this method we get 0 downtime deploys.
+  ##
+  old_pid = "<%= unicorn_pid %>.oldbin"
+  if File.exists?(old_pid) && server.pid != old_pid
+    begin
+      Process.kill("QUIT", File.read(old_pid).to_i)
+    rescue Errno::ENOENT, Errno::ESRCH
+      # someone else did our job for us
+    end
+  end
+end
+
+after_fork do |server, worker|
+  # the following is *required* for Rails + "preload_app true",
+  ActiveRecord::Base.establish_connection if defined?(ActiveRecord::Base)
+
+  # if preload_app is true, then you may also want to check and
+  # restart any other shared sockets/descriptors such as Memcached,
+  # and Redis.  TokyoCabinet file handles are safe to reuse
+  # between any number of forked children (assuming your kernel
+  # correctly implements pread()/pwrite() system calls)
+end

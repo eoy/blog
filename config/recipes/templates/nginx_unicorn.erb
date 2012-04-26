@@ -1,0 +1,44 @@
+upstream unicorn {
+  # fail_timeout=0 means we always retry an upstream even if it failed
+  # to return a good HTTP response (in case the Unicorn master nukes a
+  # single worker for timing out).
+  server unix:/tmp/unicorn.<%= application %>.sock fail_timeout=0;
+}
+
+server {
+  listen         443;
+  ssl            on;
+  server_name    <%= server_name %>;
+
+  ssl_certificate           /opt/mysite/ssl/wildcard_gandi_2012/combined-certification.crt;
+  ssl_certificate_key       /opt/mysite/ssl/wildcard_gandi_2012/monserveur.key;
+  ssl_protocols             SSLv3 TLSv1;
+  ssl_ciphers               HIGH:!ADH:!MD5;
+  ssl_prefer_server_ciphers on;
+
+  rewrite ^/(.*) https://www.mysite.com/$1 permanent;
+}
+
+server {
+  listen 80 default deferred;
+  server_name *.<%= server_name %> www.<%= server_name %>;
+  root <%= current_path %>/public;
+
+  location ^~ /assets/ {
+    gzip_static on;
+    expires max;
+    add_header Cache-Control public;
+  }
+
+  try_files $uri/index.html $uri @unicorn;
+  location @unicorn {
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header Host $http_host;
+    proxy_redirect off;
+    proxy_pass http://unicorn;
+  }
+
+  error_page 500 502 503 504 /500.html;
+  client_max_body_size 4G;
+  keepalive_timeout 10;
+}

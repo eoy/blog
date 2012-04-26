@@ -1,25 +1,33 @@
-set :application, "set your application name here"
-set :repository,  "set your repository location here"
+require "bundler/capistrano"
 
-set :scm, :subversion
-# Or: `accurev`, `bzr`, `cvs`, `darcs`, `git`, `mercurial`, `perforce`, `subversion` or `none`
+load "config/recipes/base"
+load "config/recipes/check"
+load "config/recipes/nodejs"
+load "config/recipes/ssl"
+load "config/recipes/nginx"
+load "config/recipes/unicorn"
+load "config/recipes/mysql"
+load "config/recipes/rbenv"
+load "config/recipes/security"
+load "config/recipes/utilities"
 
-role :web, "your web-server here"                          # Your HTTP server, Apache/etc
-role :app, "your app-server here"                          # This may be the same as your `Web` server
-role :db,  "your primary db-server here", :primary => true # This is where Rails migrations will run
-role :db,  "your slave db-server here"
 
-# if you want to clean up old releases on each deploy uncomment this:
-# after "deploy:restart", "deploy:cleanup"
+server "54.247.167.175", :web, :app, :db, primary: true
+set :server_name, "tippfuchs.de"
+set :application, "blog"
 
-# if you're still using the script/reaper helper you will need
-# these http://github.com/rails/irs_process_scripts
+set :user, "deployer"
+set :deploy_to, "/home/#{user}/apps/#{application}"
+set :deploy_via, :remote_cache
+set :use_sudo, false
 
-# If you are using Passenger mod_rails uncomment this:
-# namespace :deploy do
-#   task :start do ; end
-#   task :stop do ; end
-#   task :restart, :roles => :app, :except => { :no_release => true } do
-#     run "#{try_sudo} touch #{File.join(current_path,'tmp','restart.txt')}"
-#   end
-# end
+set :scm, "git"
+set :repository, "git@github.com:blackbird07/#{application}.git"
+set :branch, "master"
+
+default_run_options[:pty] = true
+#set :port, 22022
+#ssh_options[:port] = 22022
+ssh_options[:forward_agent] = true
+
+after "deploy", "deploy:cleanup" # keep only the last 5 releases
