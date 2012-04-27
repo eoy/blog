@@ -2,6 +2,7 @@ require "bundler/capistrano"
 
 load "config/recipes/base"
 load "config/recipes/check"
+load "config/system_user"
 load "config/recipes/nodejs"
 #load "config/recipes/ssl"
 load "config/recipes/nginx"
