@@ -7,7 +7,9 @@ namespace :rbenv do
     run "#{sudo} apt-get -y install build-essential curl git-core"
 
     # installs rbenv
-    run "cd $HOME; git clone git://github.com/sstephenson/rbenv.git .rbenv"
+    run "cd $HOME;"
+    run "#{sudo} rm -rf .rbenv" # remove if already exists
+    run "git clone git://github.com/sstephenson/rbenv.git .rbenv"
 
     #sets up .bashrc + current environment
     bashrc = <<-BASHRC
@@ -24,7 +26,9 @@ BASHRC
     run %q{eval "$(rbenv init -)"}
 
     # installs ruby-build
-    run "cd $HOME; git clone git://github.com/sstephenson/ruby-build.git"
+    run "cd $HOME;"
+    run "#{sudo} rm -rf ruby-build" # remove if already exists
+    run "git clone git://github.com/sstephenson/ruby-build.git"
     run "cd ruby-build; #{sudo} ./install.sh"
     
     # installs ruby
