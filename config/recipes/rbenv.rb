@@ -1,10 +1,10 @@
 # TASKS:
-# rbenv:install - installs and sets up: rbenv, ruby, bundler + curl, git-core
+# rbenv:install - installs and sets up: rbenv, ruby, bundler
 
 namespace :rbenv do
   desc "Install rbenv, Ruby, and the Bundler gem"
   task :install, roles: :app do
-    run "#{sudo} apt-get -y install curl git-core"
+    run "#{sudo} apt-get -y install build-essential curl git-core"
 
     # installs rbenv
     run "cd $HOME; git clone git://github.com/sstephenson/rbenv.git .rbenv"
