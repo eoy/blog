@@ -5,11 +5,12 @@ namespace :rbenv do
   desc "Install rbenv, Ruby, and the Bundler gem"
   task :install, roles: :app do
     run "#{sudo} apt-get -y install build-essential curl git-core"
+    run "#{sudo} apt-get -y install zlib1g-dev libssl-dev" # see https://github.com/fesplugas/rbenv-installer/blob/master/bin/rbenv-bootstrap-ubuntu-11-10
+    run "#{sudo} apt-get -y install libreadline-gplv2-dev"
 
     # installs rbenv
-    run "cd $HOME;"
-    run "#{sudo} rm -rf .rbenv" # remove if already exists
-    run "git clone git://github.com/sstephenson/rbenv.git .rbenv"
+    # TODO: test if $HOME; .rbenv already exists
+    run "cd $HOME; git clone git://github.com/sstephenson/rbenv.git .rbenv"
 
     #sets up .bashrc + current environment
     bashrc = <<-BASHRC
@@ -26,9 +27,8 @@ BASHRC
     run %q{eval "$(rbenv init -)"}
 
     # installs ruby-build
-    run "cd $HOME;"
-    run "#{sudo} rm -rf ruby-build" # remove if already exists
-    run "git clone git://github.com/sstephenson/ruby-build.git"
+    # TODO: check if $HOME; ruby-build already exists
+    run "cd $HOME; git clone git://github.com/sstephenson/ruby-build.git"
     run "cd ruby-build; #{sudo} ./install.sh"
     
     # installs ruby
