@@ -37,6 +37,7 @@ namespace :system_user do
       run "#{sudo} mv /tmp/authorized_keys /home/#{deploy_user}/.ssh/"
       run "#{sudo} chown -R #{deploy_user} /home/#{deploy_user}/.ssh"
       run "#{sudo} chgrp -R admin /home/#{deploy_user}/.ssh"
+      run "#{sudo} chmod 600 /home/#{deploy_user}/.ssh/authorized_keys"
       puts "SSH keys added for #{deploy_user}!"
     end
     close_sessions
