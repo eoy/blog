@@ -6,17 +6,16 @@
 # mysql:create_database - creates DB in mysql console
 # mysql:symlink - on deploy creates symlink from #{current_path} to #{shared_path}
 
-set_default(:mysql_host, "localhost")
-set_default(:mysql_user) { application }
-set_default(:mysql_password) { Capistrano::CLI.password_prompt "! MySQL database password: " }
+set_default(:mysql_host,          "localhost")
+set_default(:mysql_user)          { application }
+set_default(:mysql_password)      { Capistrano::CLI.password_prompt "! MySQL database password: " }
 set_default(:mysql_root_password) { Capistrano::CLI.password_prompt "! MySQL root password: " }
-set_default(:mysql_database) { "#{application}_production" }
+set_default(:mysql_database)      { "#{application}_production" }
 
 namespace :mysql do
   
   desc "Install the latest stable release of MySql."
   task :install, roles: :db, only: {primary: true} do
-    #run "echo #{mysql_password}"
     run "#{sudo} apt-get -y update"
     run "#{sudo} apt-get -y install mysql-server" do |channel, stream, data|
       # prompts for mysql root password (when blue screen appears)

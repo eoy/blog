@@ -6,22 +6,8 @@ upstream unicorn {
 }
 
 server {
-  listen         443;
-  ssl            on;
-  server_name    <%= server_name %>;
-
-  ssl_certificate           /opt/mysite/ssl/wildcard_gandi_2012/combined-certification.crt;
-  ssl_certificate_key       /opt/mysite/ssl/wildcard_gandi_2012/monserveur.key;
-  ssl_protocols             SSLv3 TLSv1;
-  ssl_ciphers               HIGH:!ADH:!MD5;
-  ssl_prefer_server_ciphers on;
-
-  rewrite ^/(.*) https://www.mysite.com/$1 permanent;
-}
-
-server {
   listen 80 default deferred;
-  server_name *.<%= server_name %> www.<%= server_name %>;
+  server_name <%= server_name %>;
   root <%= current_path %>/public;
 
   location ^~ /assets/ {
