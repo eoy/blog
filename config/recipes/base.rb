@@ -22,5 +22,5 @@ namespace :deploy do
     run "#{sudo} apt-get -y update"
     run "#{sudo} apt-get -y install python-software-properties"
   end
-  before "deploy:install", "system_user:create_user" # creates deployer user and sets up SSH keys
+  #before "deploy:install", "system_user:create_user" # creates deployer user and sets up SSH keys
 end
